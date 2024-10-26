@@ -264,20 +264,19 @@ resetT do
   z <- shiftT \(k :: Int -> IO Int) -> do
     ... -- (2)
     v <- lift $ k 10
-    point $ "3: " ++ show v -- [new]
+    point $ "3: " ++ show v -- [new], hit second
     ...
   point $ "4: " ++ show z
-  pure (z - 1)              -- [new]
+  pure (z - 1)              -- [new], hit first
 ```
+When this "reset" ends, it "checks" whether
+it was called back into by a continuation. In this example, it was.
+Therefore, whatever `pure (z - 1)` is becomes what `k 10` is.
+Now control resumes from inside the "shift" call that called the _k_.
 
-Notice: once the lambda in the "reset" resolves to the value 10 - 1 (= 9), by
-the 'pure' call, it's bound to _v_ afterwards (3). Thus, _v_ = 9.
-
-So, we know what _resetT_ does in general.
-When a call that is prefixed by _resetT_ finishes, the next instruction is
-either the normal order (if none of the continuations in any of the _shiftT_
-were called), or else, it is right after the corresponding continuation (like _k_
-in this example).
+What if _k_ weren't called? Then it proceeds as though nothing happened.
+This other hypothetical program that doesn't call _k_ will visit the
+numbered areas in "1, 2, 3, 4" order and then terminate.
 
 In other words, when _resetT_ is over comes a branch. Has any such _k_
 been called? If so, go there. If not, move on.
