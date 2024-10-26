@@ -238,7 +238,6 @@ resetT do
     v <- lift $ k 10
     ...
   point $ "4: " ++ show z
-  ...
 ```
 
 Notice: the "10" passed to _k_ is the same value bound to _z_.
@@ -263,7 +262,6 @@ resetT do
     ...
   point $ "4: " ++ show z
   pure (z - 1)              -- [new]
-  ...
 ```
 
 Notice: once the lambda in the "reset" resolves to the value 10 - 1 (= 9), by
