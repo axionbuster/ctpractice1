@@ -243,6 +243,7 @@ resetT do
 Notice: the "10" passed to _k_ is the same value bound to _z_.
 
 At this point, let's pause and answer: What does _k_ capture?
+
 The rest of the code following the _z_-binding (which calls _shiftT_)
 in the _resetT_ call, being a _continuation_,
 is _reified_ into _k_. So, _k_ captures "whatever that would have run in
@@ -251,7 +252,8 @@ should the _shiftT_ not have been there." This is why the call to the
 _shiftT_ appears to have terminated prematurely (but not quite).
 
 Now, when does control come back to the _v_-binding (calls into _k_)
-inside the _shiftT_ call? We'll answer this question in the next paragraph:
+inside the _shiftT_ call? The answer is "when the closest _resetT_
+call ends." We'll elaborate on that answer now.
 
 In the next phase, once the lambda inside the parent "reset" completes,
 control flow returns to the point where _v_ was bound (3):
@@ -277,14 +279,19 @@ either the normal order (if none of the continuations in any of the _shiftT_
 were called), or else, it is right after the corresponding continuation (like _k_
 in this example).
 
-Then,
+In other words, when _resetT_ is over comes a branch. Has any such _k_
+been called? If so, go there. If not, move on.
+
+Now comes an interesting question. What to do when multiple _resetT_
+calls are nested into each other? We'll look at this topic in Experiments 2 and 2'.
+
+At any rate, finally,
 ```haskell
--- v = 9
-point $ "3: " ++ show v
-pure (v + 1)
+point $ "3: " ++ show v -- prints "3: 9", since v = 9
+pure (v + 1)            -- returns 10
 ```
 
-Thus, the final result is 9 + 1 = 10.
+Thus, the final result is 9 (= _v_) + 1 = 10.
 
 ## Experiment 2
 
