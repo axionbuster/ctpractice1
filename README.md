@@ -269,8 +269,11 @@ resetT do
 Notice: once the lambda in the "reset" resolves to the value 10 - 1 (= 9), by
 the 'pure' call, it's bound to _v_ afterwards (3). Thus, _v_ = 9.
 
-So, when the outer _resetT_ ends, it will jump into the _shiftT_, if it
-was captured by said _shiftT_. Otherwise, nothing happens.
+So, we know what _resetT_ does in general.
+When a call that is prefixed by _resetT_ finishes, the next instruction is
+either the normal order (if none of the continuations in any of the _shiftT_
+were called), or else, it is right after the corresponding continuation (like _k_
+in this example).
 
 Then,
 ```haskell
