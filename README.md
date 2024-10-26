@@ -243,6 +243,13 @@ resetT do
 
 Notice: the "10" passed to _k_ is the same value bound to _z_.
 
+At this point, let's pause and answer: What does _k_ capture?
+The point after the _z_-binding in the _resetT_ call, being a _continuation_,
+is _reified_ into _k_. So, _k_ captures "whatever that would have run
+should the _shiftT_ not have been there." Now, when does control come
+back to the _v_-binding inside the _shiftT_ call? We'll answer this
+question in the next paragraph:
+
 In the next phase, once the lambda inside the parent "reset" completes,
 control flow returns to the point where _v_ was bound (3):
 
@@ -251,15 +258,19 @@ resetT do
   ... -- (1)
   z <- shiftT \(k :: Int -> IO Int) -> do
     ... -- (2)
-    point $ "3: " ++ show v
+    v <- lift $ k 10
+    point $ "3: " ++ show v -- [new]
     ...
   point $ "4: " ++ show z
-  pure (z - 1)
+  pure (z - 1)              -- [new]
   ...
 ```
 
 Notice: once the lambda in the "reset" resolves to the value 10 - 1 (= 9), by
 the 'pure' call, it's bound to _v_ afterwards (3). Thus, _v_ = 9.
+
+So, when the outer _resetT_ ends, it will jump into the _shiftT_, if it
+was captured by said _shiftT_. Otherwise, nothing happens.
 
 Then,
 ```haskell
@@ -271,6 +282,9 @@ pure (v + 1)
 Thus, the final result is 9 + 1 = 10.
 
 ## Experiment 2
+
+Experiments 2 and 2' put the word "delimited" in delimited continuation.
+A _resetT_ call gives the scope of what _shiftT_ will capture.
 
 ```
 experiment2
