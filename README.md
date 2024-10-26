@@ -209,10 +209,14 @@ let's not get ahead of ourselves. What even are "shift" and "reset"?
 
 "reset" creates sort of a "box" so that an inner "shift" can't escape it.
 
-When control flow jumps to the continuation (say, k) captured by "shift,"
-it executes as though that "shift" just finished with the value given to k,
+When control flow jumps to the continuation (say, _k_) captured by "shift,"
+it executes as though that "shift" just finished with the value given to _k_,
 and when the "reset" completes, the control flow returns to where it left off
-(that is, inside the shift, right after the k).
+(that is, inside the shift, right after the _k_).
+
+But if the "shift" is entered but the continuation is never invoked, then
+control flow never returns to where it left off; it terminates as the shift
+call does.
 
 ## Experiment 1
 
@@ -249,7 +253,7 @@ in the _resetT_ call, being a _continuation_,
 is _reified_ into _k_. So, _k_ captures "whatever that would have run in
 the closest _resetT_, if any,
 should the _shiftT_ not have been there." This is why the call to the
-_shiftT_ appears to have terminated prematurely (but not quite).
+_shiftT_ appears to have terminated prematurely.
 
 Now, when does control come back to the _v_-binding (calls into _k_)
 inside the _shiftT_ call? The answer is "when the closest _resetT_
@@ -274,12 +278,22 @@ it was called back into by a continuation. In this example, it was.
 Therefore, whatever `pure (z - 1)` is becomes what `k 10` is.
 Now control resumes from inside the "shift" call that called the _k_.
 
-What if _k_ weren't called? Then it proceeds as though nothing happened.
-This other hypothetical program that doesn't call _k_ will visit the
-numbered areas in "1, 2, 3, 4" order and then terminate.
+What if _k_ weren't called? Then the termination of the "shift" call
+terminates the "reset" call. This other hypothetical program that doesn't
+call _k_ will visit the numbered areas in "1, 2, 3" order and then terminate,
+and "4" will never be reached.
 
-In other words, when _resetT_ is over comes a branch. Has any such _k_
-been called? If so, go there. If not, move on.
+In other words, when _resetT_ is over, it "checks" whether it came from
+a continuation. If so, it jumps to where it left off. If not, it terminates
+normally.
+
+A call to _shiftT_ changes the fate of the _resetT_ call that contains it,
+like a fork in the road. If _shiftT_ has been called, then there's no way
+to resume the _resetT_ call except by calling the continuation, which means
+jumping to where it left off: This future flow of the program - resuming the
+_resetT_ call - has just been captured as a continuation, so if said continuation
+isn't invoked, then it'll never be reached, which accomplishes the early
+termination of the _resetT_ call.
 
 Now comes an interesting question. What to do when multiple _resetT_
 calls are nested into each other? We'll look at this topic in Experiments 2 and 2'.
@@ -373,7 +387,7 @@ explanation becomes more clear.)
 
 This is a demonstration repository intended to help understand delimited
 continuations. I'm a student myself, and I finally managed to crack the code
-on `shift`/`reset` literally today (before then, they were like Egyptian
+on `shift`/`reset` literally yesterday (before then, they were like Egyptian
 hieroglyphs). So I'm sure there are errors. But I hope that others can take
 the shortcut that I took and avoid the "thought pitfalls" (if you will) that
 I fell into. If you find any errors or have suggestions for clearer examples
