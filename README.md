@@ -237,6 +237,7 @@ resetT do
     v <- lift $ k 10
     ...
   point $ "4: " ++ show z
+  ...
 ```
 
 Notice: the "10" passed to _k_ is the same value bound to _z_.
