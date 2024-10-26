@@ -247,9 +247,11 @@ The rest of the code following the _z_-binding (which calls _shiftT_)
 in the _resetT_ call, being a _continuation_,
 is _reified_ into _k_. So, _k_ captures "whatever that would have run in
 the closest _resetT_, if any,
-should the _shiftT_ not have been there." Now, when does control come
-back to the _v_-binding (calls into _k_) inside the _shiftT_ call?
-We'll answer this question in the next paragraph:
+should the _shiftT_ not have been there." This is why the call to the
+_shiftT_ appears to have terminated prematurely (but not quite).
+
+Now, when does control come back to the _v_-binding (calls into _k_)
+inside the _shiftT_ call? We'll answer this question in the next paragraph:
 
 In the next phase, once the lambda inside the parent "reset" completes,
 control flow returns to the point where _v_ was bound (3):
