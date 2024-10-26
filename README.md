@@ -177,8 +177,7 @@ can make code much more manageable than otherwise. It's certainly a high-risk,
 high-reward technique, but with less risk and possibly greater gain than
 `setjmp`/`longjmp`.
 
-*(Incomplete. Reason: I know of just one code snippet that uses `setjmp`/`longjmp`,*
-*and I don't know how to translate that into a Haskell example.)*
+*(Incomplete)*
 
 ## Basic Idea Behind `shift`/`reset`
 
